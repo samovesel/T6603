@@ -36,6 +36,7 @@ class T6603 {
     static const byte CO2_PPM       = 0x03;
     static const byte SERIL         = 0x01;
     static const byte ELEVATION     = 0x0F;
+    static const byte ABC_STATUS 	  = 0xB7;
 
 
     SoftwareSerial* _serial;
@@ -46,7 +47,10 @@ class T6603 {
     ~T6603();  
     void begin(uint8_t, uint8_t);
     int get_co2(void);
+    int get_elevation(void);
     byte get_status(void);
+    byte get_abc(void);
+    void set_elevation(int);
     void set_idle(bool);
 };
 

@@ -194,5 +194,22 @@ void T6603::set_idle(bool onOff) {
         
 }
 
+void T6603::set_elevation(uint16_t elev) {
+
+	uint8_t elev_l = elev & 0xFF;
+	uint8_t elev_h = elev >> 8;
+
+    _serial->overflow();
+    _serial->write(FLAG);
+    _serial->write(BRDCST);
+	_serial->write(0x04);
+	_serial->write(CMD_UPDATE);
+	_serial->write(ELEVATION);
+	_serial->write(elev_h);
+	_serial->write(elev_l);
+    delay(50);
+       
+}
+
 
 

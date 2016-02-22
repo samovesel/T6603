@@ -50,7 +50,7 @@ class T6603 {
     int get_elevation(void);
     byte get_status(void);
     byte get_abc(void);
-    void set_elevation(int);
+    void set_elevation(uint16_t);
     void set_idle(bool);
 };
 

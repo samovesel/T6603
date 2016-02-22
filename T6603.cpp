@@ -101,6 +101,40 @@ byte T6603::get_status(void) {
     return (NULL);
 }
 
+int T6603::get_elevation(void) {
+
+    _serial->overflow();
+    _serial->write(FLAG);
+    _serial->write(BRDCST);
+    _serial->write(0x02);
+    _serial->write(CMD_READ); 
+    _serial->write(ELEVATION);
+    delay(50);
+
+    for ( int attempts = 0; attempts < MAX_ATTEMPTS; attempts++ ) {
+
+        byte reading[5]; 
+        int bytesRead = 0;        
+        
+        while ( _serial->available() && bytesRead < 6) {
+            reading[bytesRead] = _serial->read();
+            bytesRead++;
+            delay(10);
+        }
+
+        if ( reading[0] == 0xFF && reading[1] == 0xFA ) {
+            int i = 0;
+            i |= reading[3] & 0xFF;
+            i <<= 8;
+            i |= reading[4] & 0xFF;
+            _lastReading = i;
+            return (_lastReading); 
+        }
+    }
+    
+    return (_lastReading);
+}
+
 void T6603::set_idle(bool onOff) {
 
     byte cmd = onOff ? 0x01 : 0x02;

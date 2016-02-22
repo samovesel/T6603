@@ -101,6 +101,86 @@ byte T6603::get_status(void) {
     return (NULL);
 }
 
+int T6603::get_elevation(void) {
+
+    _serial->overflow();
+    _serial->write(FLAG);
+    _serial->write(BRDCST);
+    _serial->write(0x02);
+    _serial->write(CMD_READ); 
+    _serial->write(ELEVATION);
+    delay(50);
+
+    for ( int attempts = 0; attempts < MAX_ATTEMPTS; attempts++ ) {
+
+        byte reading[5]; 
+        int bytesRead = 0;        
+        
+        while ( _serial->available() && bytesRead < 6) {
+            reading[bytesRead] = _serial->read();
+            bytesRead++;
+            delay(10);
+        }
+
+        if ( reading[0] == 0xFF && reading[1] == 0xFA ) {
+            int i = 0;
+            i |= reading[3] & 0xFF;
+            i <<= 8;
+            i |= reading[4] & 0xFF;
+            _lastReading = i;
+            return (_lastReading); 
+        }
+    }
+    
+    return (_lastReading);
+}
+
+byte T6603::get_abc(void) {
+
+    _serial->overflow();
+    _serial->write(FLAG);
+    _serial->write(BRDCST);
+    _serial->write(0x01);
+    _serial->write(ABC_STATUS); 
+
+    delay(50);
+
+    for ( int attempts = 0; attempts < MAX_ATTEMPTS; attempts++ ) {
+
+        byte reading[4]; 
+        int bytesRead = 0;        
+        
+        while ( _serial->available() && bytesRead < 4) {
+            reading[bytesRead] = _serial->read();
+            bytesRead++;
+            delay(10);
+        }
+
+        if ( reading[0] == 0xFF && reading[1] == 0xFA ) {
+            return ( reading[3] );
+        }
+    }
+    
+    return (NULL);
+}
+
+void T6603::set_elevation(uint16_t elev) {
+	
+	uint8_t elev_l = elev & 0xFF;
+	uint8_t elev_h = elev >> 8;
+
+    _serial->overflow();
+    _serial->write(FLAG);
+    _serial->write(BRDCST);
+	_serial->write(0x04);
+	_serial->write(CMD_UPDATE);
+	_serial->write(ELEVATION);
+	_serial->write(elev_h);
+	_serial->write(elev_l);
+    delay(50);
+       
+}
+
 void T6603::set_idle(bool onOff) {
 
     byte cmd = onOff ? 0x01 : 0x02;
@@ -130,6 +210,8 @@ void T6603::set_idle(bool onOff) {
     }
         
 }
+
+
 
 
 

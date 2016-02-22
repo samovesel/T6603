@@ -135,6 +135,35 @@ int T6603::get_elevation(void) {
     return (_lastReading);
 }
 
+byte T6603::get_abc(void) {
+
+    _serial->overflow();
+    _serial->write(FLAG);
+    _serial->write(BRDCST);
+    _serial->write(0x01);
+    _serial->write(ABC_STATUS); 
+
+    delay(50);
+
+    for ( int attempts = 0; attempts < MAX_ATTEMPTS; attempts++ ) {
+
+        byte reading[4]; 
+        int bytesRead = 0;        
+        
+        while ( _serial->available() && bytesRead < 4) {
+            reading[bytesRead] = _serial->read();
+            bytesRead++;
+            delay(10);
+        }
+
+        if ( reading[0] == 0xFF && reading[1] == 0xFA ) {
+            return ( reading[3] );
+        }
+    }
+    
+    return (NULL);
+}
+
 void T6603::set_idle(bool onOff) {
 
     byte cmd = onOff ? 0x01 : 0x02;
